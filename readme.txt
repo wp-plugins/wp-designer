@@ -42,7 +42,6 @@ Or you can follow the steps given below:
 == Screenshots ==
 
 1. WP Designer: Debug Tools
-1. WP Designer: Directory Structure and Files
 
 == Frequently Asked Questions ==
 

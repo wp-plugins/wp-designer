@@ -25,6 +25,7 @@ Place all your php functions in functions.php and extra styles in style.css.
 1. Theme independence allows to extend WordPress without creating a massive and painful update to an existing theme.
    
 Also read:
+
 1. http://justintadlock.com/archives/2013/09/14/why-custom-post-types-belong-in-plugins
 1. http://justintadlock.com/archives/2011/02/02/creating-a-custom-functions-plugin-for-end-users
 
@@ -42,7 +43,6 @@ Or you can follow the steps given below:
 == Screenshots ==
 
 1. WP Designer: Debug Tools
-1. WP Designer: Directory Structure and Files
 
 == Frequently Asked Questions ==
 

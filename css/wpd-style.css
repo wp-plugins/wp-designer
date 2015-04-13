@@ -1,0 +1,24 @@
+/**
+ *
+ *	WP Designer admin stylesheet
+ *
+ *	@since 1.0
+ *
+ */
+ 
+.wpd-intro {
+	background-color: #fff;
+	padding: 1em 2em;
+	border-left: 3px solid #f39c12;
+	margin-top: 1.618em;
+	margin-bottom: 1.618em;
+}
+ 
+.wpd-ul {
+	margin-left: 2em;
+	list-style-type: square;
+}
+
+.wpd-ul li {
+	padding-left: 0.618em;
+}

@@ -1,8 +1,8 @@
 === WP Designer ===
 Contributors: varun21, aniash_29, ruchika_wp
-Tags: designer, customizer, developer, wp customizer, wp customization, wordpress designer, wordpress customizations
+Tags: wordpress customizer, wordpress designer, developer, wp customizer, wp customization, wordpress customizations
 Requires at least: 3.6
-Tested up to: 4.1.1
+Tested up to: 4.2
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -15,7 +15,16 @@ WP Designer allows you to add extra functionality to your site in a standard com
 
 WP Designer also gives you a development friendly environment. It provides you options to conveniently disable your customizations when you want to troubleshoot.
 
-Place all your php functions in functions.php and extra styles in style.css.
+= Using WP Designer =
+
+Once you've installed and activated `WP Designer`, it creates a folder `wp-designer` inside the `uploads` directory in your main WordPress installation directory. The `wp-designer` folder includes all the necessary files and folders required for designing the site. Here's the list of sub-folders and the files within `wp-designer` folder:
+
+1. **images** folder: This folder can be used to upload all the necessary graphics / image files included in your design.
+1. **scripts** folder: This folder can be used to upload the script files that need to enqueued in your website.
+1. **functions.php**: This file is the main file that can be used to include all the php tweaks and code snippets.
+1. **style.css**: This file can be used to place all the CSS customizations required in the website design.
+
+*Note:* The script files uploaded in the `scripts` folder will need to included / enqueued manually in your `functions.php` file. The constant `WPD_JS_DIR_URL` can be used to retrieve the path to the scripts folder. Similarly, the constant `WPD_IMG_DIR_URL` can be used to retrieve the path to the `images` folder. These constants can be used in the functions.php to include the files / images as required.
 
 = WP Designer allows you to: =
 
@@ -46,15 +55,24 @@ Or you can follow the steps given below:
 
 == Frequently Asked Questions ==
 
-= How do I start my customizations? =
+= How do I start using WP Designer? =
 
-On activation, WP Designer automatically creates a wp-designer folder in the uploads directory which includes all the necessary files and folders required for designing the site. You can start by editing the functions.php for adding any custom functionality. If you need CSS customizations you can edit the style.css in the same folder.
+On activation, WP Designer automatically creates a `wp-designer` folder in the uploads directory which includes all the necessary files and folders required for designing the site. Here's the list of sub-folders and the files within `wp-designer` folder:
+
+1. **images** folder: This folder can be used to upload all the necessary graphics / image files included in your design.
+1. **scripts** folder: This folder can be used to upload the script files that need to enqueued in your website.
+1. **functions.php**: This file is the main file that can be used to include all the php tweaks and code snippets.
+1. **style.css**: This file can be used to place all the CSS customizations required in the website design.
+
+= How can I use the images and the script files that I have uploaded to the wp-designer folder in the uploads directory? =
+
+The script files uploaded in the `scripts` folder will need to included / enqueued manually in your `functions.php` file. The constant **WPD_JS_DIR_URL** can be used to retrieve the path to the scripts folder. Similarly, the constant **WPD_IMG_DIR_URL** can be used to retrieve the path to the `images` folder. These constants can be used in the functions.php to include the files / images as required.
 
 = How do I disable my customizations? =
 
 There are three ways to do this.
 
-1. Go to Setting > WP Designer and check the option to disable functions.php and style.css.
+1. Go to Settings > WP Designer and check the option to disable functions.php and style.css.
 1. Comment out your code.
 1. Disable the WP Designer plugin itself.
 

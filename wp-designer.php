@@ -4,8 +4,8 @@
  *
  *	Plugin Name: WP Designer
  *	Plugin URI: http://www.binaryturf.com/wordpress-designer
- *	Description: This plugin helps you to customize any Wordpress site regardless of the theme you use.
- *	Version: 1.0
+ *	Description: This plugin helps you to customize any WordPress site regardless of the theme you use.
+ *	Version: 2.0
  *	Author: Shivanand Sharma
  *	Author URI: http://www.binaryturf.com/about
  *	License: GPL-2.0+
@@ -50,6 +50,8 @@ class WPDInit {
 		
 		add_action( 'admin_enqueue_scripts', array( $this, 'wpd_plugin_styles' ) );
 		
+		add_action( 'get_header', array( $this, 'wpd_throttle_sass' ) );
+		
 		add_action( 'wp_enqueue_scripts', array( $this, 'wpd_stylesheet' ), 9990 );
 		add_action( 'init', array( $this, 'wpd_functions' ), 20 );
 		
@@ -66,15 +68,9 @@ class WPDInit {
 	 */
 	public function wpd_activate() {
 		
-		$wpd_error = 'File or directory already exists.';
-		$wpd_rw_error = 'The file could not be written. Please verify the file permissions on your server.';
-		
 		/** Check if the plugin's base folder is created in the uploads folder. If not, create one. **/
 		if ( !is_dir( WPD_BASE_DIR ) ) {
 			wp_mkdir_p( WPD_BASE_DIR );
-		}
-		else {
-			return $wpd_error;
 		}
 		
 		/** Create subdirectories, once the plugin base folder is created in the uploads folder. **/
@@ -83,15 +79,9 @@ class WPDInit {
 			if ( !is_dir( WPD_IMG_DIR ) ) {
 				wp_mkdir_p( WPD_IMG_DIR );
 			}
-			else {
-				return $wpd_error;
-			}
 			
 			if ( !is_dir( WPD_JS_DIR ) ) {
 				wp_mkdir_p( WPD_JS_DIR );
-			}
-			else {
-				return $wpd_error;
 			}
 			
 			/** Create functions.php and style.css files in the plugin's base folder located in the uploads directory **/
@@ -104,8 +94,8 @@ class WPDInit {
 				),
 				array(
 					'base' 		=> WPD_BASE_DIR,
-					'file' 		=> 'style.css',
-					'content' 	=> "/** Place all your custom css styles in this stylesheet. It will automatically be enqueued at the front-end. For best-practices pls refer to https://make.wordpress.org/core/handbook/coding-standards/css/ **/"
+					'file' 		=> 'style.scss',
+					'content' 	=> "/** Place all your custom styles in this file. The CSS for this file will be automatically generated and enqueued at the front-end. For best-practices please refer to https://make.wordpress.org/core/handbook/coding-standards/css/ **/"
 				)
 			);
 			
@@ -115,19 +105,13 @@ class WPDInit {
 						fwrite( $file_handle, $wpd_file['content'] );
 						fclose( $file_handle );
 					}
-					else {
-						return $wpd_rw_error;
-					}
-				}
-				else {
-					return $wpd_error;
 				}
 			}
 		
 		}
 	
 	}
-	
+
 	
 	/** Adding the Support and Author links to the plugin in the admin area on the plugins page **/
 	public function wpd_links( $links ) {
@@ -174,7 +158,7 @@ class WPDInit {
 
 		add_settings_field(
             'wpd-include-func',
-            'Disable functions.php?',
+            'Disable functions?',
             array( $this, 'wpd_func_field' ),
             'wp-designer',
             'wpd-section-debug',
@@ -183,7 +167,7 @@ class WPDInit {
 		
         add_settings_field(
 			'wpd-include-style', 
-			'Disable style.css?', 
+			'Disable styles?', 
 			array( $this, 'wpd_style_field' ), 
 			'wp-designer',
 			'wpd-section-debug',
@@ -226,9 +210,9 @@ class WPDInit {
 							<li><strong>Images Folder:</strong> Upload all your graphics here: <code><?php echo WPD_IMG_DIR; ?></code></li>
 							<li><strong>Scripts Folder:</strong> Upload the required scripts here: <code><?php echo WPD_JS_DIR; ?></code></li>
 							<li><strong>functions.php:</strong> Add all the code snippets and php tweaks to functions.php here: <code><?php echo WPD_BASE_DIR . '/functions.php'; ?></code></li>
-							<li><strong>style.css:</strong> The right way to style or design your site is through a theme or a child-theme. This style.css however is provided just in case there are custom elements or markup that needs some miscelleneous tweaks. You can place such CSS customizations here: <code><?php echo WPD_BASE_DIR . '/style.css'; ?></code></li>
+							<li><strong>style.scss:</strong> The right way to style or design your site is through a theme or a child-theme. The style.scss however is provided just in case there are custom elements or markup that needs some miscellaneous tweaks. Place all your SASS customizations here and WP Designer will automatically handle the CSS generation for the front-end. You can place such CSS customizations here: <code><?php echo WPD_BASE_DIR . '/style.scss'; ?></code></li>
 						</ul>
-						<p>You can use the options given below to enable or disable functions.php and style.css for debugging.</p>
+						<p>You can use the options given below to enable or disable the plugin functions and styles for debugging purposes.</p>
 						<p><em><strong>Note:</strong> If you have made any customizations using Wordpress in-built Customizer, they may not be overriden owing to CSS priority or specificity.</em></p>
 					</div>
 					<?php
@@ -317,7 +301,7 @@ class WPDInit {
 	
 	
 	/**
-	 *	Defines a function to output settings field for the name and ID attributes of input fields	
+	 *	Define a function to output settings field for the name and ID attributes of input fields	
 	 */
 	public function wpd_get_option( $field ) {
 
@@ -326,7 +310,7 @@ class WPDInit {
 	}
 	
 	/**
-	 *	Defines a function to retrieve the values of the settings field from the database
+	 *	Define a function to retrieve the values of the settings field from the database
 	 */
 	public function wpd_get_option_val( $field ) {
 		
@@ -346,19 +330,81 @@ class WPDInit {
 	
 	
 	/**
-	 *	Enqueue plugin's style.css file 
+	 *	Compile the SCSS to CSS for the front-end display
+	 *	Compiled CSS to be written to autogenerated.css and enqueued to the front-end
+	 */	
+	public function wpd_throttle_sass() {
+		
+		if( !class_exists( 'scssc' ) )
+			require_once( WPD_PLUGIN_DIR . '/lib/scssphp/scss.inc.php' );
+		
+		$wpd_scss = WPD_BASE_DIR . '/style.scss';
+		
+		if( file_exists( $wpd_scss ) ) {
+			
+			if( !current_user_can( 'update_themes' ) ) {
+				return;
+			}
+			
+			$scss = new scssc();
+			$scss->setFormatter( 'scss_formatter' );	
+			
+			if( !file_exists( WPD_BASE_DIR . '/autogenerated.css' ) || filemtime( WPD_BASE_DIR . '/style.scss' ) > filemtime( WPD_BASE_DIR . '/autogenerated.css' ) ) {
+
+				$css = "@charset \"UTF-8\"; \n\n/*********************************************************************************\n******************** Make all your changes to style.scss **************************\n**** This file will be overwritten by style.scss and your changes will be lost ****\n**********************************************************************************/\n\n";
+				$css .= $scss->compile( '@import "' . WPD_BASE_DIR . '/style.scss' . '"' );
+				
+				file_put_contents( WPD_BASE_DIR . '/autogenerated.css', $css );
+				
+				if( !is_writable( WPD_BASE_DIR . '/autogenerated.css' ) ) {
+					add_action( 'admin_notices', 'wpd_sass_write_failure' );
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	/**
+	 *	Trigger an error notice if autogenerated.css is not writeable
+	 */
+	public function wpd_sass_write_failure() {
+		
+		 ?>
+			<div class="error">
+			<p>File Write Error: The <code>autogenerated.css</code> (or the plugin folder) is not writeable. In order for the SASS compiler to work, please make sure that the plugin folder in the uploads directory is writeable so that autogenerated.css can be written to.</p>
+			</div>
+		<?php
+		
+	}
+	
+	/**
+	 *	Enqueue plugin's CSS file — style.css (if exists) & autogenerated.css
 	 *  Checks if the file is created in the uploads folder
-	 *  Also checks if style.css is not disabled on plugin's options / settings page
+	 *  Also checks if style.scss / style.css is not disabled on the plugin's options / settings page
 	 */
 	public function wpd_stylesheet() {
 	
 		$wpd_css = WPD_BASE_DIR . '/style.css';
+		$wpd_autocss = WPD_BASE_DIR . '/autogenerated.css';
 		
-		$current = $this->wpd_get_option_val( 'include_styles' );
+		$wpd_style_disabled = $this->wpd_get_option_val( 'include_styles' );
+			
+		// Bail if disabled on plugin settings page
+		if( $wpd_style_disabled )
+			return;
 		
-		if( !$current && file_exists( $wpd_css ) ) {
+		// Enqueue style.css; for all the previous versions
+		if( file_exists( $wpd_css ) ) {
 			wp_register_style( 'wpd-styles', WPD_BASE_URL . '/style.css' );
 			wp_enqueue_style( 'wpd-styles' );
+		}
+		
+		// Enqueue autogenerated.css if exists
+		if( file_exists( $wpd_autocss ) ) {
+			wp_register_style( 'wpd-sass', WPD_BASE_URL . '/autogenerated.css' );
+			wp_enqueue_style( 'wpd-sass' );
 		}
 	
 	}
@@ -367,7 +413,7 @@ class WPDInit {
 	/**
 	 *	Enqueue plugin's functions.php file 
 	 *  Checks if the file is created in the uploads folder
-	 *  Also checks if functions.php is not disabled on plugin's options / settings page
+	 *  Also checks if functions.php is not disabled on the plugin's options / settings page
 	 */
 	public function wpd_functions() {
 		

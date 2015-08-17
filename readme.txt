@@ -2,7 +2,7 @@
 Contributors: varun21, aniash_29, ruchika_wp
 Tags: designer, customizer, developer, wp customizer, wp customization, wordpress designer, wordpress customizations
 Requires at least: 3.6
-Tested up to: 4.2.2
+Tested up to: 4.3
 Stable tag: 2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
